@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Internal working notes (not part of the release)
+PROJECT_MEMORY.md
+
+# Paper workspace and benchmark data are not published in this repository.
+# HCSP benchmark matrices: https://github.com/chgogos/hcsp
+paper/
+data/
+
+# Historical backups and run logs
+*.bak
+*.bak_*
+*.bak.*
+results/*.txt
+_chk_*.png
