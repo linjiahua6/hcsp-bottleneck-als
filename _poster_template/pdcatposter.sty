@@ -1,0 +1,105 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pdcatposter}[2026/11/17 PDCAT 2026 purple A0 poster]
+\RequirePackage{iftex}
+\ifXeTeX\else
+  \PackageError{pdcatposter}{Select the XeLaTeX compiler}{In Overleaf, open Settings and choose XeLaTeX.}
+\fi
+\RequirePackage{lmodern}
+\RequirePackage{fontspec}
+\RequirePackage{xeCJK}
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\RequirePackage{amsmath}
+\RequirePackage{booktabs}
+\RequirePackage{enumitem}
+
+% These fonts ship with TeX Live and Overleaf; no system fonts are required.
+\setmainfont{texgyreheros-regular.otf}[
+  BoldFont=texgyreheros-bold.otf,
+  ItalicFont=texgyreheros-italic.otf,
+  BoldItalicFont=texgyreheros-bolditalic.otf]
+\setCJKmainfont{FandolHei-Regular.otf}[BoldFont=FandolHei-Bold.otf]
+\setCJKmonofont{FandolHei-Regular.otf}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedbottom
+\setlist[itemize]{leftmargin=1.05em,label=\textcolor{PosterBlue}{\textbullet},
+  itemsep=0.42em,parsep=0pt,topsep=0pt,partopsep=0pt}
+
+% The original 3.pdf / Visio template uses #741B5B.
+\definecolor{PosterNavy}{HTML}{741B5B}
+\definecolor{PosterBlue}{HTML}{741B5B}
+\definecolor{PosterCyan}{HTML}{C96AAE}
+\definecolor{PosterIce}{HTML}{FBF6FA}
+\definecolor{PosterBorder}{HTML}{E5D2E0}
+\definecolor{PosterInk}{HTML}{33242F}
+\definecolor{PosterMuted}{HTML}{7C6877}
+
+% Arguments: left, top, width, maximum height (mm), font, leading (pt), text.
+\newsavebox{\PosterTextBox}
+\newcommand{\PosterText}[7]{%
+  \node[anchor=north west,inner sep=0pt,outer sep=0pt]
+    at (#1,#2) {% Measure inside the node, where PGF restores the text font.
+      \sbox{\PosterTextBox}{%
+        \begin{minipage}[t]{#3mm}
+          \fontsize{#5}{#6}\selectfont #7%
+        \end{minipage}}%
+      \ifdim\dimexpr\ht\PosterTextBox+\dp\PosterTextBox\relax>#4mm
+        \PackageWarning{pdcatposter}{Content box at (#1,#2) exceeds #4mm; shorten the text or adjust this box}%
+      \fi
+      \usebox{\PosterTextBox}};
+}
+
+\newcommand{\PosterBackground}{%
+  \fill[PosterIce] (0,0) rectangle (841,1189);
+  \fill[white] (0,0) rectangle (841,164);
+  \fill[PosterCyan] (0,164) rectangle (841,167);
+  % Subtle vector circuit traces are confined to the header and outer margins.
+  \begin{scope}[draw=PosterBlue,line width=0.65pt,opacity=0.15]
+    \draw (632,7) -- (664,7) -- (680,23) -- (826,23);
+    \draw (723,4) -- (739,20) -- (791,20) -- (811,40) -- (835,40);
+    \draw (7,113) -- (18,102) -- (18,72) -- (4,58);
+    \foreach \x/\y in {632/7,826/23,723/4,835/40,7/113,4/58}
+      \draw (\x,\y) circle[radius=1.4mm];
+  \end{scope}
+  \begin{scope}[draw=PosterBlue,line width=0.6pt,opacity=0.12]
+    \draw (6,194) -- (6,328) -- (10,332) -- (10,461);
+    \draw (835,525) -- (835,655) -- (831,659) -- (831,834);
+    \draw (6,898) -- (6,1090) -- (10,1094) -- (10,1140);
+  \end{scope}
+  \fill[PosterNavy] (0,1176) rectangle (841,1189);
+}
+
+% Arguments: top, total card height (mm), section number, title.
+\newcommand{\PosterSection}[4]{%
+  \filldraw[fill=white,draw=PosterBorder,line width=0.75pt,rounded corners=4mm]
+    (16,#1) rectangle (825,{#1+#2});
+  \fill[PosterBlue,rounded corners=4mm] (16,#1) rectangle (825,{#1+39});
+  \fill[PosterBlue] (16,{#1+20}) rectangle (825,{#1+39});
+  \fill[PosterCyan] (16,{#1+9}) rectangle (19,{#1+30});
+  \node[anchor=west,inner sep=0pt,text=white,font=\fontsize{24}{29}\selectfont\bfseries]
+    at (29,{#1+19.5}) {#3};
+  \node[inner sep=0pt,text=white,font=\fontsize{60}{70}\selectfont\bfseries]
+    at (420.5,{#1+19.5}) {#4};
+}
+
+% Arguments: left, top, width, height (mm), image filename, placeholder title.
+% The image is fitted proportionally; neither cropping nor stretching is used.
+\newcommand{\PosterFigure}[6]{%
+  \IfFileExists{#5}{%
+    \node[inner sep=0pt,outer sep=0pt] at ({#1+#3/2},{#2+#4/2})
+      {\includegraphics[width=#3mm,height=#4mm,keepaspectratio]{#5}};
+  }{%
+    \filldraw[fill=PosterIce!35!white,draw=PosterBorder,dash pattern=on 3mm off 2mm,
+      line width=0.9pt,rounded corners=2mm]
+      (#1,#2) rectangle ({#1+#3},{#2+#4});
+    \draw[PosterCyan,line width=1.5pt]
+      ({#1+5},{#2+16}) -- ({#1+5},{#2+5}) -- ({#1+16},{#2+5});
+    \node[align=center,text width=\dimexpr#3mm-16mm\relax,inner sep=0pt,text=PosterMuted,
+      font=\fontsize{33}{42}\selectfont]
+      at ({#1+#3/2},{#2+#4/2-4}) {#6};
+    \node[inner sep=0pt,text=PosterMuted,font=\fontsize{20}{25}\selectfont]
+      at ({#1+#3/2},{#2+#4/2+20}) {\texttt{\expandafter\detokenize\expandafter{#5}}};
+  }%
+}
+\endinput

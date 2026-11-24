@@ -1,0 +1,170 @@
+% !TeX program = xelatex
+% Overleaf: upload the project ZIP, select XeLaTeX, then edit this file.
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{pdcatposter}
+\usetikzlibrary{arrows.meta,positioning}
+
+% ---------- Author information ----------
+% The title area holds up to two lines. Do not insert manual line breaks.
+\newcommand{\PaperTitle}{BLS: A Bottleneck-Oriented Post-Processing Operator for Heterogeneous Task Scheduling}
+\newcommand{\PaperAuthors}{Jiahua Lin\textsuperscript{1}\quad Yangfan Li\textsuperscript{2}}
+\newcommand{\PaperAffiliations}{\textsuperscript{1}School of Computer Science and Engineering, Central South University, Changsha, China\quad \textsuperscript{2}Central South University, Changsha, China}
+\newcommand{\PaperID}{1134}
+\newcommand{\PaperContact}{Contact: 1872852720@qq.com\quad |\quad Paper ID: 1134\quad |\quad github.com/linjiahua6/hcsp-bottleneck-als}
+
+% ---------- Figures ----------
+% Add your own files to figures/. PDF is recommended for vector diagrams.
+% PNG/JPG also work: change the corresponding filename below.
+% Missing files produce editable placeholder frames in the compiled poster.
+\newcommand{\MotivationImage}{figures/motivation_poster.pdf}
+\newcommand{\ResultsImage}{figures/results_poster.pdf}
+\newcommand{\QualitativeImage}{figures/qualitative_poster.pdf}
+\newcommand{\ParamHeatImage}{figures/paramheat_poster.pdf}
+% Method figure is drawn with TikZ below; comparison panel is a table.
+% \newcommand{\MethodImage}{figures/method.pdf}
+% \newcommand{\ComparisonImage}{figures/comparison.pdf}
+\newcommand{\QRCodeImage}{figures/qr-code.pdf}
+
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=-1mm,text=PosterInk]
+\begin{scope}
+  \clip (0,0) rectangle (841,1189);
+  \PosterBackground
+
+  % ---------- Header ----------
+  \PosterText{26}{12}{789}{58}{74}{82}{\color{PosterInk}\centering\bfseries\PaperTitle}
+  \PosterText{26}{74}{789}{14}{30}{36}{\color{PosterBlue}\centering\bfseries
+    A lightweight deterministic post-processor: strictly better than plain local search on all 28/28 matrices under equal evaluation budgets}
+  \PosterText{32}{90}{777}{20}{46}{55}{\color{PosterInk}\centering\PaperAuthors}
+  \PosterText{35}{111}{771}{17}{29}{35}{\color{PosterMuted}\centering\PaperAffiliations}
+  \node[anchor=north west,inner sep=0pt,outer sep=0pt] at (30,129)
+    {\includegraphics[width=40.6mm]{assets/PDCAT_Logo_Vector.pdf}};
+  \PosterText{81}{130}{183}{18}{52}{60}{\color{PosterBlue}\bfseries PDCAT\,2026}
+  \PosterText{81}{148}{183}{13}{38}{44}{\color{PosterBlue}\bfseries Paper ID:~\PaperID}
+  \PosterText{278}{133}{527}{28}{28}{34}{\color{PosterMuted}
+    The 27th International Conference on Parallel and Distributed Computing,
+    Applications and Technologies}
+  % Paper/code QR in the header corner (white area, right of the title block)
+  \PosterFigure{786}{12}{45}{45}{\QRCodeImage}{Paper / code QR}
+  \PosterText{786}{59}{45}{8}{18}{22}{\color{PosterMuted}\centering Paper / code}
+
+  % ---------- 01 / Motivation ----------
+  \PosterSection{171}{218}{01}{Motivation}
+  \PosterText{30}{243}{455}{146}{36}{42}{%
+    \begin{enumerate}[label=\textcolor{PosterBlue}{\textbf{\arabic*.}},leftmargin=1.25em,itemsep=0.30em,parsep=0pt,topsep=0pt,partopsep=0pt]
+      \item \textbf{Task:} Heterogeneous Computing Scheduling Problem (HCSP): schedule $n$ independent tasks on $m$ heterogeneous machines to minimize the longest machine load (NP-hard).
+      \item \textbf{Gap:} greedy heuristics are fast but weak; metaheuristics are strong but costly and start-sensitive.
+      \item \textbf{Contribution:} BLS---a lightweight, deterministic post-processor for any initial schedule.
+      \item \textbf{Insight:} gains concentrate on the bottleneck machine; the BLS advantage is larger at higher observed $\rho$.
+    \end{enumerate}}
+  \PosterFigure{500}{229}{310}{131}{\MotivationImage}{Improvement rate vs. bottleneck sharpness $\rho$}
+  \PosterText{500}{364}{310}{16}{24}{29}{\color{PosterMuted}\centering Fig.~1: Improvement rate vs. bottleneck sharpness $\rho$ (Min-Min init, $512\times16$)}
+
+  % ---------- 02 / Method ----------
+  \PosterSection{403}{321}{02}{Method / Proposed Approach}
+  \PosterText{30}{470}{300}{250}{40}{50}{%
+    \begin{enumerate}[label=\textcolor{PosterBlue}{\textbf{\arabic*.}},leftmargin=1.25em,itemsep=0.42em,parsep=0pt,topsep=0pt,partopsep=0pt]
+      \item \textbf{Round loop:} locate bottleneck $b=\arg\max_j L_j$; take its $K$ longest tasks; per task $R$ migration targets; per target $S$ swap partners.
+      \item \textbf{Acceptance:} strictly improving moves only ($C' < C - \mathrm{tol}$); output never worse than input.
+      \item \textbf{Efficiency:} $n(m-1) \to \le KR(1+S)$ evaluations per round; default $(4,2,4)$; $O(n+m)$ memory; deterministic.
+      \item \textbf{DR extension:} perturbation escape for trap instances; activated only when no improving move exists.
+    \end{enumerate}}
+  % TikZ framework diagram: serpentine round loop with optional DR escape branch
+  \newcommand{\ft}[1]{{\fontsize{25}{29}\selectfont\bfseries\color{PosterBlue}#1}}
+  \newcommand{\fs}[1]{{\fontsize{21}{25}\selectfont\color{PosterInk}#1}}
+  \node[anchor=center,inner sep=0pt,outer sep=0pt] at (600,552) {%
+    \begin{tikzpicture}[
+        node distance = 2.2cm and 2.4cm,
+        box/.style = {draw=PosterBlue!75, line width=1.4pt, fill=white, rounded corners=2.5mm,
+                      text width=10.6cm, minimum height=3.2cm, inner sep=2mm, align=center},
+        term/.style = {box, fill=PosterIce},
+        drbox/.style = {box, dashed, draw=PosterMuted, fill=PosterIce!50},
+        arr/.style = {->, line width=1.8pt, draw=PosterBlue,
+                      >={Stealth[length=3.6mm,width=3.2mm]}},
+        ret/.style = {->, line width=1.6pt, draw=PosterMuted,
+                      >={Stealth[length=3.6mm,width=3.2mm]}},
+        arrd/.style = {->, line width=1.4pt, draw=PosterMuted, dashed,
+                       >={Stealth[length=3.4mm,width=3.0mm]}},
+        lab/.style = {font=\fontsize{18}{21}\selectfont, text=PosterMuted},
+        badge/.style = {circle, fill=PosterBlue, text=white, minimum size=6.5mm,
+                        inner sep=0pt, font=\fontsize{17}{17}\selectfont\bfseries},
+      ]
+      \node[term]                (init) {{\ft{Initial solution}}\\[3mm]{\fs{$a_0$}}};
+      \node[box, right=of init]  (bn)   {{\ft{Locate bottleneck}}\\[3mm]{\fs{$b=\arg\max_j L_j$}}};
+      \node[box, right=of bn]    (cand) {{\ft{Candidate filtering}}\\[3mm]{\fs{$K$ tasks, $R$ targets, $S$ swaps}}};
+      \node[box, below=of cand]  (enum) {{\ft{Move enumeration}}\\[3mm]{\fs{migration $+$ swap}}};
+      \node[box, left=of enum]   (acc)  {{\ft{Accept best move}}\\[3mm]{\fs{$C' < C - \mathrm{tol}$}}};
+      \node[term, left=of acc]   (upd)  {{\ft{Update loads}}\\[3mm]{\fs{next round or stop}}};
+      \node[drbox, below=of acc] (dr)   {{\ft{DR escape}}\\[3mm]{\fs{traps only, optional}}};
+      \node[badge] at (init.north west) {1};
+      \node[badge] at (bn.north west)   {2};
+      \node[badge] at (cand.north west) {3};
+      \node[badge] at (enum.north west) {4};
+      \node[badge] at (acc.north west)  {5};
+      \node[badge] at (upd.north west)  {6};
+      \draw[arr] (init) -- (bn);
+      \draw[arr] (bn)   -- (cand);
+      \draw[arr] (cand) -- (enum);
+      \draw[arr] (enum) -- (acc);
+      \draw[arr] (acc)  -- (upd);
+      \draw[ret] (upd.north) -- (init.south);
+      \draw[arrd] (acc.south) -- node[right=2mm, align=left, lab] {no improving\\move} (dr.north);
+    \end{tikzpicture}};
+  % Key facts badge row
+  \fill[white,draw=PosterBorder,line width=0.75pt,rounded corners=2mm] (405,633) rectangle (795,659);
+  \PosterText{410}{636}{380}{20}{24}{28}{\color{PosterBlue}\centering\bfseries Key facts: $\le KR(1{+}S)$ evals/round \enspace$\cdot$\enspace $O(n{+}m)$ memory \enspace$\cdot$\enspace deterministic \enspace$\cdot$\enspace default $(4,2,4)$}
+  \PosterText{405}{665}{389}{14}{24}{29}{\color{PosterMuted}\centering Fig.~2: One round of BLS---locate $\to$ filter $\to$ enumerate $\to$ accept $\to$ update}
+
+  % ---------- 03 / Results ----------
+  \PosterSection{735}{412}{03}{Experimental Results}
+  % Row 1: main results (left) | DR boundary + QR (right), one 270mm column
+  \PosterFigure{30}{797}{500}{140}{\ResultsImage}{Main results: improvement-rate distributions (left) and group-mean final-gap trajectories (right)}
+  \PosterText{30}{940}{500}{14}{24}{29}{\color{PosterMuted}\centering Fig.~3: Improvement-rate distributions (left) and group-mean final-gap trajectories (right)}
+  \PosterFigure{538}{797}{270}{143}{\QualitativeImage}{DR boundary}
+  \PosterText{538}{941}{270}{11}{24}{29}{\color{PosterMuted}\centering Fig.~4: DR helps only on trap instances}
+
+  % Row 2: main finding banner (full width)
+  \fill[PosterIce,rounded corners=2mm] (30,976) rectangle (808,1012);
+  \fill[PosterCyan] (30,982) rectangle (32,1006);
+  \PosterText{209}{982}{420}{28}{32}{38}{%
+    \centering \textbf{Main finding:} under equal evaluation budgets BLS wins all 28/28 matrices ($p = 7.45\times10^{-9}$); at equal time only 1/740 evals (512$\times$16, Min-Min).}
+
+  % Row 3: comparison table (left) | paramheat (right), captions on the same baseline
+  \node[anchor=north west,inner sep=0pt,outer sep=0pt] at (30,1020) {%
+    \begin{minipage}{500mm}
+      \centering
+      {\color{PosterInk}\fontsize{18}{22}\selectfont\textbf{Mean improvement rate and final gap (\%) by size and initial solution, averaged over budgets 5000/10000}}\\[2mm]
+      {\fontsize{20}{20}\selectfont
+      \renewcommand{\arraystretch}{1.0}%
+      \begin{tabular*}{500mm}{@{\extracolsep{\fill}}l l c c c c@{}}
+        \toprule
+        Size & Init & \multicolumn{2}{c}{Improvement rate (\%)} & \multicolumn{2}{c}{Final gap (\%)} \\
+        \cmidrule(lr){3-4}\cmidrule(lr){5-6}
+             &          & PLS & BLS & PLS & BLS \\
+        \midrule
+        $512\times16$   & Min-Min     & 2.57 & \textcolor{PosterBlue}{\textbf{5.68}}  & 10.68    & \textcolor{PosterBlue}{\textbf{7.10}} \\
+                         & round-robin & 7.13 & \textcolor{PosterBlue}{\textbf{64.33}} & 507.26   & \textcolor{PosterBlue}{\textbf{123.99}} \\
+        \cmidrule(lr){1-6}
+        $1024\times32$  & Min-Min     & 0.56 & \textcolor{PosterBlue}{\textbf{5.50}}  & 15.29    & \textcolor{PosterBlue}{\textbf{9.51}} \\
+                         & round-robin & 4.32 & \textcolor{PosterBlue}{\textbf{61.84}} & 1351.99  & \textcolor{PosterBlue}{\textbf{518.11}} \\
+        \cmidrule(lr){1-6}
+        $2048\times64$  & Min-Min     & 0.84 & \textcolor{PosterBlue}{\textbf{7.69}}  & 19.68    & \textcolor{PosterBlue}{\textbf{11.10}} \\
+                         & round-robin & 3.26 & \textcolor{PosterBlue}{\textbf{47.60}} & 2282.57  & \textcolor{PosterBlue}{\textbf{1283.03}} \\
+        \bottomrule
+      \end{tabular*}}
+    \end{minipage}};
+  \PosterText{30}{1110}{500}{16}{20}{24}{\color{PosterMuted} 12 matrices (512×16) / 8 matrices (1024×32, 2048×64) per cell, one run each (seed 42); budgets 5000/10000 pooled.}
+  \PosterFigure{576}{1020}{194}{89}{\ParamHeatImage}{Parameter sensitivity heatmap}
+  \PosterText{538}{1110}{270}{16}{20}{24}{\color{PosterMuted}\centering Fig.~5: all 12 positive; default (4,2,4) best merged (36.88\%)}
+
+  % ---------- Footer ----------
+  \PosterText{26}{1157}{789}{15}{24}{30}{\centering\PaperContact}
+  \PosterText{26}{1179}{789}{9}{20}{24}{\color{white}\centering
+    PDCAT 2026\quad |\quad December 4--6, 2026\quad |\quad Changsha, China}
+
+\end{scope}
+  % Fix the PDF page to A0, independent of any node's bounding box.
+  \pgfresetboundingbox
+  \path[use as bounding box] (0,0) rectangle (841,1189);
+\end{tikzpicture}
+\end{document}

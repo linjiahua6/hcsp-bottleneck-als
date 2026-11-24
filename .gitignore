@@ -18,3 +18,15 @@ data/
 *.bak.*
 results/*.txt
 _chk_*.png
+_*.png
+
+# Poster build artifacts and scratch material
+_poster_template/_*.png
+_poster_template/_combo.*
+_poster_template/_preview*.png
+_poster_template/*.aux
+_poster_template/*.log
+_poster_template/figures/qr_temp.png
+_poster_refs/
+PDCAT2026_poster_template.zip
+PDCAT2026_registration_receipt.txt
